@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Zufalls-Klingelton – minimalistisches Smartphone-Icon</title>
+  <desc id="desc">Ein reduziertes Smartphone mit einer klaren Musiknote und zwei Klingeltonwellen.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="900" y2="950" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B1232"/>
+      <stop offset="1" stop-color="#0D132B"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="230" y1="800" x2="820" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF78B8"/>
+      <stop offset="0.5" stop-color="#B86BFF"/>
+      <stop offset="1" stop-color="#7CFFB2"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="350" y1="300" x2="520" y2="720" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#292052"/>
+      <stop offset="1" stop-color="#161936"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" rx="220" fill="url(#bg)"/>
+  <circle cx="520" cy="510" r="350" fill="#7B4BD1" opacity=".08"/>
+
+  <!-- Simple smartphone silhouette. -->
+  <g filter="url(#glow)">
+    <rect x="220" y="150" width="350" height="724" rx="68" fill="#17172F" stroke="url(#accent)" stroke-width="12"/>
+    <rect x="246" y="178" width="298" height="668" rx="46" fill="url(#screen)" stroke="#B86BFF" stroke-opacity=".28" stroke-width="4"/>
+    <rect x="350" y="200" width="90" height="16" rx="8" fill="#090B1D"/>
+    <circle cx="395" cy="798" r="15" fill="none" stroke="#7CFFB2" stroke-width="5"/>
+
+    <!-- Clean audio pulse inside the phone. -->
+    <path d="M292 515h42l22-74 34 150 30-106 24 55h70" fill="none" stroke="url(#accent)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Two calm ringtone waves. -->
+  <g fill="none" stroke="url(#accent)" stroke-linecap="round" filter="url(#glow)">
+    <path d="M654 376c62 72 62 200 0 272" stroke-width="20"/>
+    <path d="M738 292c106 118 106 322 0 440" stroke-width="16" opacity=".8"/>
+  </g>
+
+  <!-- One simple, legible eighth note. -->
+  <g fill="url(#accent)" filter="url(#glow)">
+    <rect x="824" y="208" width="25" height="242" rx="12"/>
+    <path d="M842 208h124v42l-124 29z"/>
+    <ellipse cx="797" cy="454" rx="58" ry="38" transform="rotate(-12 797 454)"/>
+  </g>
+
+  <circle cx="153" cy="777" r="9" fill="#7CFFB2"/>
+  <circle cx="867" cy="784" r="8" fill="#FF78B8"/>
+</svg>

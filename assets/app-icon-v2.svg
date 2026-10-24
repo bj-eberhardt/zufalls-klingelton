@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">Zufalls-Klingelton – Smartphone mit Klingeltonwellen und Musiknoten</title>
+  <desc id="desc">Ein modernes Smartphone sendet farbige Schallwellen aus, umgeben von schwebenden Musiknoten.</desc>
+
+  <defs>
+    <linearGradient id="background" x1="80" y1="80" x2="940" y2="950" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17102C"/>
+      <stop offset="0.52" stop-color="#24143F"/>
+      <stop offset="1" stop-color="#0C1028"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="260" y1="180" x2="570" y2="850" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3C275E"/>
+      <stop offset="1" stop-color="#171936"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="220" y1="760" x2="820" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF78B8"/>
+      <stop offset="0.5" stop-color="#B86BFF"/>
+      <stop offset="1" stop-color="#7CFFB2"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="300" y1="300" x2="510" y2="700" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#19183C"/>
+      <stop offset="1" stop-color="#30205B"/>
+    </linearGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="28"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" rx="220" fill="url(#background)"/>
+  <circle cx="530" cy="520" r="390" fill="#6D35B5" opacity=".12" filter="url(#softGlow)"/>
+  <circle cx="750" cy="490" r="210" fill="#7CFFB2" opacity=".08" filter="url(#softGlow)"/>
+
+  <!-- Small equalizer texture behind the main mark. -->
+  <g fill="url(#neon)" opacity=".22">
+    <rect x="112" y="690" width="10" height="82" rx="5"/>
+    <rect x="132" y="650" width="10" height="122" rx="5"/>
+    <rect x="152" y="716" width="10" height="56" rx="5"/>
+    <rect x="874" y="244" width="10" height="128" rx="5"/>
+    <rect x="894" y="204" width="10" height="168" rx="5"/>
+    <rect x="914" y="274" width="10" height="98" rx="5"/>
+  </g>
+
+  <!-- Smartphone: the source of the ringtone. -->
+  <g filter="url(#glow)">
+    <rect x="230" y="150" width="330" height="710" rx="64" fill="url(#phone)" stroke="url(#neon)" stroke-width="10"/>
+    <rect x="252" y="174" width="286" height="662" rx="44" fill="url(#screen)" stroke="#B86BFF" stroke-opacity=".35" stroke-width="4"/>
+    <rect x="348" y="194" width="94" height="18" rx="9" fill="#0B0D20"/>
+    <circle cx="395" cy="776" r="15" fill="none" stroke="#7CFFB2" stroke-width="5" opacity=".75"/>
+
+    <!-- Ringtone pulse on the phone screen. -->
+    <path d="M286 518 C320 476 350 560 382 520 S445 458 502 510" fill="none" stroke="url(#neon)" stroke-width="12" stroke-linecap="round"/>
+    <path d="M286 560 C320 518 350 602 382 562 S445 500 502 552" fill="none" stroke="#B86BFF" stroke-opacity=".35" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="395" cy="518" r="30" fill="#B86BFF" opacity=".18"/>
+    <path d="M387 480v58c-4-3-9-4-15-3-12 2-20 11-18 20s13 14 25 12c14-2 22-11 22-21v-45l35-8v-15z" fill="url(#neon)"/>
+  </g>
+
+  <!-- Sound waves emitted by the phone. -->
+  <g fill="none" stroke="url(#neon)" stroke-linecap="round" filter="url(#glow)">
+    <path d="M620 394 C678 444 678 566 620 616" stroke-width="18"/>
+    <path d="M678 326 C770 410 770 600 678 684" stroke-width="16" opacity=".9"/>
+    <path d="M744 260 C870 378 870 632 744 750" stroke-width="13" opacity=".72"/>
+  </g>
+
+  <!-- Music notes in the pool. -->
+  <g fill="url(#neon)" filter="url(#glow)">
+    <path d="M132 322v112c-9-7-21-10-34-7-25 5-42 22-39 40 3 18 25 28 50 23 27-5 44-23 44-43V344l70-16v-31z"/>
+    <path d="M694 824v70c-7-5-16-7-25-5-18 3-30 16-28 29 2 13 18 20 36 16 20-4 32-17 32-31v-52l50-11v-23z"/>
+    <path d="M800 164v68c-7-5-16-7-25-5-18 3-30 16-28 29 2 13 18 20 36 16 20-4 32-17 32-31v-52l50-11v-23z"/>
+  </g>
+
+  <!-- Random-selection sparkle. -->
+  <path d="M734 110l14 38 38 14-38 14-14 38-14-38-38-14 38-14z" fill="#7CFFB2" filter="url(#glow)"/>
+  <circle cx="176" cy="780" r="9" fill="#7CFFB2"/>
+  <circle cx="888" cy="790" r="8" fill="#FF78B8"/>
+</svg>

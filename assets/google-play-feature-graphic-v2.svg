@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1024" height="500" viewBox="0 0 1024 500" role="img" aria-labelledby="title desc">
+  <title id="title">Dein Zufallsklingelton – automatisch wechselnd</title>
+  <desc id="desc">Musikalische Neon-Vorstellungsgrafik mit Smartphone, geschwungenem Slogan und automatisch wechselnden Klingeltönen.</desc>
+
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1024" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17102F"/>
+      <stop offset="0.5" stop-color="#2A1647"/>
+      <stop offset="1" stop-color="#0B132B"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="100" y1="430" x2="920" y2="70" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF78B8"/>
+      <stop offset="0.5" stop-color="#B86BFF"/>
+      <stop offset="1" stop-color="#7CFFB2"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="110" y1="90" x2="260" y2="410" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#292052"/>
+      <stop offset="1" stop-color="#151832"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-100%" width="200%" height="300%">
+      <feGaussianBlur stdDeviation="28"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="500" fill="url(#background)"/>
+  <ellipse cx="570" cy="252" rx="420" ry="178" fill="#7B4BD1" opacity=".12" filter="url(#softGlow)"/>
+
+  <!-- Flowing audio lines create the musical movement. -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M0 380 C130 282 250 450 390 350 S650 240 790 344 S920 430 1024 320" stroke="#B86BFF" stroke-width="3" opacity=".32"/>
+    <path d="M0 414 C130 320 250 470 390 378 S650 268 790 370 S920 448 1024 348" stroke="#7CFFB2" stroke-width="2" opacity=".22"/>
+  </g>
+
+  <!-- Smartphone as the ringtone source. -->
+  <g filter="url(#glow)">
+    <rect x="78" y="58" width="188" height="386" rx="36" fill="#17172F" stroke="url(#neon)" stroke-width="8"/>
+    <rect x="93" y="73" width="158" height="356" rx="25" fill="url(#screen)" stroke="#B86BFF" stroke-opacity=".28" stroke-width="3"/>
+    <rect x="148" y="86" width="48" height="8" rx="4" fill="#090B1D"/>
+    <path d="M113 252h22l12-42 20 84 18-60 14 31h34" fill="none" stroke="url(#neon)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="172" cy="401" r="8" fill="none" stroke="#7CFFB2" stroke-width="3"/>
+  </g>
+
+  <!-- Sound waves under the curved headline. -->
+  <g fill="none" stroke="url(#neon)" stroke-linecap="round" filter="url(#glow)">
+    <path d="M326 152 C372 192 372 278 326 318" stroke-width="11" opacity=".9"/>
+    <path d="M374 116 C438 174 438 296 374 354" stroke-width="9" opacity=".7"/>
+  </g>
+
+  <!-- Musical headline: movement comes from the waves, text stays clear. -->
+  <rect x="294" y="175" width="540" height="108" rx="30" fill="#0B0D22" fill-opacity=".64" stroke="#B86BFF" stroke-opacity=".22" stroke-width="2"/>
+  <text x="564" y="243" text-anchor="middle" fill="white" font-family="Calibri" font-size="42" font-weight="700" letter-spacing="-0.4">Dein Zufallsklingelton</text>
+
+  <!-- Automatic switching: two ringtone states connected by a circular arrow. -->
+  <g filter="url(#glow)" transform="translate(140 72)">
+    <circle cx="720" cy="248" r="78" fill="#0B0D22" fill-opacity=".38" stroke="#B86BFF" stroke-opacity=".3" stroke-width="2"/>
+    <path d="M678 232a48 48 0 0 1 74-22l14 14" fill="none" stroke="url(#neon)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M766 208l2 25-24-4" fill="none" stroke="#7CFFB2" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M762 264a48 48 0 0 1-74 22l-14-14" fill="none" stroke="url(#neon)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M674 288l-2-25 24 4" fill="none" stroke="#FF78B8" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="702" cy="247" r="16" fill="#FF78B8"/>
+    <circle cx="738" cy="247" r="16" fill="#7CFFB2"/>
+  </g>
+
+  <rect x="500" y="420" width="392" height="54" rx="27" fill="#0B0D22" fill-opacity=".62" stroke="#7CFFB2" stroke-opacity=".38" stroke-width="2"/>
+  <circle cx="530" cy="447" r="7" fill="#7CFFB2"/>
+  <text x="554" y="457" fill="white" font-family="Calibri" font-size="24" font-weight="700" letter-spacing=".2">Automatisch wechselnd</text>
+
+  <!-- One clean note and a small random sparkle. -->
+  <g fill="url(#neon)" filter="url(#glow)">
+    <rect x="898" y="82" width="15" height="118" rx="7"/>
+    <path d="M908 82h65v23l-65 16z"/>
+    <ellipse cx="880" cy="208" rx="28" ry="18" transform="rotate(-12 880 208)"/>
+  </g>
+  <path d="M470 70l7 18 18 7-18 7-7 18-7-18-18-7 18-7z" fill="#7CFFB2" filter="url(#glow)"/>
+</svg>
