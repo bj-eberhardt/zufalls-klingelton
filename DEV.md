@@ -4,6 +4,8 @@ Technische Informationen für die lokale Entwicklung und Qualitätssicherung von
 
 ## Voraussetzungen
 
+Die Einrichtung der GitHub-Release-Automation ist in [GITHUB_SETUP.md](GITHUB_SETUP.md) beschrieben.
+
 - Android Studio mit aktuellem Android SDK
 - JDK 17
 - Android SDK Platform 36
