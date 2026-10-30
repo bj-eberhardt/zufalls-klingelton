@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -24,11 +26,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.os.Build
 
 @Composable
 fun SetupScreen(status: PermissionStatus, onRequestPermissions: () -> Unit, onStart: () -> Unit) {
     Box(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 20.dp, vertical = 28.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 20.dp, vertical = 28.dp)
+            .verticalScroll(rememberScrollState())
+            .testTag("setup_scroll_container"),
         contentAlignment = Alignment.Center,
     ) {
         Card(
@@ -43,6 +51,9 @@ fun SetupScreen(status: PermissionStatus, onRequestPermissions: () -> Unit, onSt
                 PermissionRow(stringResource(R.string.permission_audio_title), stringResource(R.string.permission_audio_description), status.audioLibraryGranted)
                 PermissionRow(stringResource(R.string.permission_phone_title), stringResource(R.string.permission_phone_description), status.phoneStateGranted)
                 PermissionRow(stringResource(R.string.permission_ringtone_title), stringResource(R.string.permission_ringtone_description), status.ringtoneChangeGranted)
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+                    PermissionRow(stringResource(R.string.permission_storage_write_title), stringResource(R.string.permission_storage_write_description), status.mediaStoreWriteGranted)
+                }
                 if (!status.allGranted) Text(stringResource(R.string.setup_missing_hint), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Button(onClick = onRequestPermissions, enabled = !status.allGranted, modifier = Modifier.fillMaxWidth().testTag("request_permissions_button"), shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)) {
                     Text(stringResource(R.string.setup_permissions_button))

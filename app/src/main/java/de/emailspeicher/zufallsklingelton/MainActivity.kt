@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.lifecycleScope
 import androidx.activity.viewModels
 import android.widget.Toast
+import android.util.Log
 import de.emailspeicher.zufallsklingelton.ui.theme.ZufallsKlingeltonTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -240,9 +241,12 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun addUris(uris: List<Uri>) {
+        Log.i("MainActivity", "Adding ${uris.size} selected URI(s) to the track pool")
         lifecycleScope.launch {
             val imported = withContext(Dispatchers.IO) { uris.mapNotNull(audioLibraryRepository::readTrack) }
+            Log.i("MainActivity", "Imported ${imported.size}/${uris.size} selected URI(s)")
             if (imported.isEmpty()) {
+                Log.e("MainActivity", "No selected URI could be imported")
                 selectionError = getString(R.string.import_error)
             } else {
                 viewModel.addTracks(imported)
@@ -253,6 +257,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun launchFilePicker() {
+        Log.d("MainActivity", "Launching audio file picker")
         filePickerLauncher.launch(
             Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 type = "audio/*"
@@ -269,6 +274,7 @@ class MainActivity : ComponentActivity() {
         permissionStatus = status
         when {
             !status.audioLibraryGranted -> runtimePermissionLauncher.launch(audioPermission())
+            !status.mediaStoreWriteGranted -> runtimePermissionLauncher.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             !status.phoneStateGranted -> runtimePermissionLauncher.launch(android.Manifest.permission.READ_PHONE_STATE)
             !status.ringtoneChangeGranted -> {
                 waitingForSettings = true

@@ -1,11 +1,16 @@
 package de.emailspeicher.zufallsklingelton
 
 import android.content.Context
+import android.content.ContentValues
 import android.database.Cursor
 import android.media.RingtoneManager
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.util.Log
+import java.io.File
 
 class AudioLibraryRepository(context: Context) {
     private val appContext = context.applicationContext
@@ -60,7 +65,8 @@ class AudioLibraryRepository(context: Context) {
         return tracksByUri.values.sortedBy { it.title.lowercase() }
     }
 
-    fun readTrack(uri: Uri): Track? {
+    fun readTrack(uri: Uri): Track? = runCatching {
+        Log.d(TAG, "Reading selected audio URI: $uri")
         var title = ""
         var duration = 0L
         resolver.query(uri, arrayOf(MediaStore.Audio.Media.TITLE, MediaStore.Audio.Media.DURATION, OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
@@ -71,9 +77,72 @@ class AudioLibraryRepository(context: Context) {
             }
         }
         if (title.isBlank()) title = uri.lastPathSegment.orEmpty().ifBlank { appContext.getString(R.string.unknown_track) }
-        return runCatching {
-            resolver.openAssetFileDescriptor(uri, "r")?.use { TrackRepository.fromMedia(uri, title, "", duration) }
-        }.getOrNull()
+        Log.d(TAG, "Read metadata: title=$title, durationMs=$duration, authority=${uri.authority}")
+        val mediaUri = if (uri.authority == "media") uri else importIntoMediaStore(uri, title)
+        Log.d(TAG, "Resolved audio URI: $mediaUri")
+        mediaUri?.let { TrackRepository.fromMedia(it, title, "", duration, managedByApp = uri.authority != "media") }
+    }.onFailure { error ->
+        Log.e(TAG, "Unable to import audio track: $uri", error)
+    }.getOrNull()
+
+    private fun importIntoMediaStore(sourceUri: Uri, title: String): Uri? = runCatching {
+        val mimeType = resolver.getType(sourceUri) ?: "audio/mpeg"
+        val extension = mimeType.substringAfter('/', "mp3")
+        val safeTitle = title.replace(Regex("[^A-Za-z0-9._-]"), "_")
+        val displayName = if (safeTitle.endsWith(".$extension", ignoreCase = true)) {
+            safeTitle
+        } else {
+            "$safeTitle.$extension"
+        }
+        Log.d(TAG, "Copying audio to MediaStore: mimeType=$mimeType, displayName=$displayName")
+        val values = ContentValues().apply {
+            put(MediaStore.Audio.Media.DISPLAY_NAME, displayName)
+            put(MediaStore.Audio.Media.MIME_TYPE, mimeType)
+            put(MediaStore.Audio.Media.TITLE, title)
+            put(MediaStore.Audio.Media.IS_RINGTONE, 1)
+            put(MediaStore.Audio.Media.IS_MUSIC, 1)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                put(MediaStore.Audio.Media.RELATIVE_PATH, "Ringtones/Zufalls-Klingelton")
+                put(MediaStore.Audio.Media.IS_PENDING, 1)
+            } else {
+                val ringtoneDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES)
+                ringtoneDirectory.mkdirs()
+                put(MediaStore.Audio.Media.DATA, File(ringtoneDirectory, displayName).absolutePath)
+            }
+        }
+        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        } else {
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        }
+        val destinationUri = resolver.insert(collection, values)
+            ?: return@runCatching null
+        Log.d(TAG, "MediaStore insert succeeded: destinationUri=$destinationUri")
+        try {
+            resolver.openInputStream(sourceUri)?.use { input ->
+                resolver.openOutputStream(destinationUri)?.use { output ->
+                    val copiedBytes = input.copyTo(output)
+                    Log.d(TAG, "Copied $copiedBytes byte(s) to $destinationUri")
+                }
+                    ?: error("Unable to open destination stream")
+            } ?: error("Unable to open source stream")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val updatedRows = resolver.update(destinationUri, ContentValues().apply {
+                    put(MediaStore.Audio.Media.IS_PENDING, 0)
+                }, null, null)
+                Log.d(TAG, "MediaStore pending flag cleared: updatedRows=$updatedRows")
+            }
+            destinationUri
+        } catch (error: Throwable) {
+            resolver.delete(destinationUri, null, null)
+            throw error
+        }
+    }.onFailure { error ->
+        Log.e(TAG, "Unable to copy audio track into MediaStore: $sourceUri", error)
+    }.getOrNull()
+
+    private companion object {
+        const val TAG = "AudioLibraryRepository"
     }
 
     private fun Cursor.stringOrEmpty(column: String): String {

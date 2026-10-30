@@ -7,6 +7,7 @@ data class Track(
     val artist: String,
     val durationMs: Long,
     val order: Long,
+    val isManagedByApp: Boolean = false,
 )
 
 enum class SwitchMode {

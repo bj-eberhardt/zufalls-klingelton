@@ -11,9 +11,10 @@ data class PermissionStatus(
     val audioLibraryGranted: Boolean,
     val phoneStateGranted: Boolean,
     val ringtoneChangeGranted: Boolean,
+    val mediaStoreWriteGranted: Boolean = true,
 ) {
     val allGranted: Boolean
-        get() = audioLibraryGranted && phoneStateGranted && ringtoneChangeGranted
+        get() = audioLibraryGranted && phoneStateGranted && ringtoneChangeGranted && mediaStoreWriteGranted
 }
 
 fun audioPermission(): String =
@@ -27,6 +28,8 @@ fun readPermissionStatus(context: Context): PermissionStatus = PermissionStatus(
     audioLibraryGranted = context.hasPermission(audioPermission()),
     phoneStateGranted = context.hasPermission(Manifest.permission.READ_PHONE_STATE),
     ringtoneChangeGranted = Settings.System.canWrite(context),
+    mediaStoreWriteGranted = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q ||
+        context.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE),
 )
 
 private fun Context.hasPermission(permission: String): Boolean =

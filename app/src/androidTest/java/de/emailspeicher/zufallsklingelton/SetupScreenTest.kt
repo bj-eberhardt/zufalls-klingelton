@@ -4,6 +4,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -35,6 +37,7 @@ class SetupScreenTest {
 
         composeRule.onNodeWithText(targetContext.getString(R.string.setup_title)).assertIsDisplayed()
         composeRule.onNodeWithTag("start_button").assertIsNotEnabled()
+        composeRule.onNodeWithTag("setup_scroll_container").assert(hasScrollAction())
     }
 
     @Test

@@ -9,6 +9,8 @@
     <string name="permission_phone_description">Damit ein Klingelton während eines Anrufs korrekt behandelt werden kann.</string>
     <string name="permission_ringtone_title">Systemklingelton ändern</string>
     <string name="permission_ringtone_description">Damit die App später einen zufälligen Song als Klingelton setzen darf.</string>
+    <string name="permission_storage_write_title">Medienspeicher</string>
+    <string name="permission_storage_write_description">Damit die App ausgewählte Audiodateien bei älteren Android-Versionen als Klingelton speichern kann.</string>
     <string name="permission_granted">Erteilt</string>
     <string name="permission_missing">Fehlt</string>
     <string name="setup_missing_hint">Erlaube alle Zugriffe, um weiterzumachen. Du kannst deine Auswahl jederzeit in den Android-Einstellungen ändern.</string>

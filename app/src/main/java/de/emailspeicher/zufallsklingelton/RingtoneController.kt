@@ -33,10 +33,14 @@ class RingtoneController(private val context: Context) {
 
     fun rememberCurrentRingtone() {
         if (store.previousRingtoneUri == null) {
-            store.previousRingtoneUri = RingtoneManager
-                .getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE)
-                ?.toString()
-                .orEmpty()
+            val current = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE)
+            store.previousRingtoneUri = current?.let { uri ->
+                if (uri.authority == "media") {
+                    uri.toString()
+                } else {
+                    AudioLibraryRepository(context).readTrack(uri)?.uri.orEmpty()
+                }
+            }.orEmpty()
         }
     }
 

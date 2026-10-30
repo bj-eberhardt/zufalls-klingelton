@@ -2,19 +2,32 @@ package de.emailspeicher.zufallsklingelton
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 
-class TrackRepository(context: Context) {
+class TrackRepository(private val context: Context) {
     private val resolver = context.contentResolver
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
 
     fun load(): List<Track> {
         val stored = runCatching { decode(preferences.getString(TRACKS_KEY, "[]").orEmpty()) }
             .getOrDefault(emptyList())
-        val reachable = stored.filter(::isReachable)
-        if (reachable.size != stored.size) save(reachable)
+        val audioRepository = AudioLibraryRepository(context)
+        val migrated = stored.mapNotNull { track ->
+            if (Uri.parse(track.uri).authority == "media") {
+                track
+            } else {
+                audioRepository.readTrack(Uri.parse(track.uri))?.let { imported ->
+                    track.copy(uri = imported.uri, isManagedByApp = true)
+                }
+            }
+        }
+        Log.d(TAG, "Loaded ${stored.size} stored track(s), migrated ${migrated.size} track(s)")
+        val reachable = migrated.filter(::isReachable)
+        Log.d(TAG, "${reachable.size} track(s) remain reachable after validation")
+        if (reachable != stored) save(reachable)
         return reachable.sortedBy { it.order }
     }
 
@@ -25,13 +38,23 @@ class TrackRepository(context: Context) {
     }
 
     fun delete(id: String): List<Track> {
-        val remaining = load().filterNot { it.id == id }
+        val current = load()
+        current.firstOrNull { it.id == id }?.let(::deleteManagedMedia)
+        val remaining = current.filterNot { it.id == id }
         save(remaining)
         return remaining
     }
 
     fun clear() {
+        load().filter { it.isManagedByApp }.forEach(::deleteManagedMedia)
         save(emptyList())
+    }
+
+    private fun deleteManagedMedia(track: Track) {
+        if (track.isManagedByApp && Uri.parse(track.uri).authority == "media") {
+            val deletedRows = resolver.delete(Uri.parse(track.uri), null, null)
+            Log.d(TAG, "Deleted app-managed media ${track.uri}, rows=$deletedRows")
+        }
     }
 
     fun isReachable(track: Track): Boolean = runCatching {
@@ -43,6 +66,7 @@ class TrackRepository(context: Context) {
     }
 
     companion object {
+        private const val TAG = "TrackRepository"
         private const val PREFERENCES_NAME = "track_pool"
         private const val TRACKS_KEY = "tracks"
 
@@ -51,6 +75,7 @@ class TrackRepository(context: Context) {
             title: String,
             artist: String,
             durationMs: Long,
+            managedByApp: Boolean = false,
         ): Track = Track(
             id = UUID.randomUUID().toString(),
             uri = uri.toString(),
@@ -58,6 +83,7 @@ class TrackRepository(context: Context) {
             artist = artist,
             durationMs = durationMs,
             order = 0,
+            isManagedByApp = managedByApp,
         )
 
         fun encode(tracks: List<Track>): String = JSONArray().apply {
@@ -69,6 +95,7 @@ class TrackRepository(context: Context) {
                     put("artist", track.artist)
                     put("durationMs", track.durationMs)
                     put("order", track.order)
+                    put("isManagedByApp", track.isManagedByApp)
                 })
             }
         }.toString()
@@ -86,6 +113,7 @@ class TrackRepository(context: Context) {
                             artist = item.optString("artist"),
                             durationMs = item.optLong("durationMs"),
                             order = item.optLong("order", index.toLong()),
+                            isManagedByApp = item.optBoolean("isManagedByApp", false),
                         ),
                     )
                 }

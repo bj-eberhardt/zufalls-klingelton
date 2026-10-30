@@ -9,6 +9,8 @@
     <string name="permission_phone_description">Allows the app to handle ringtone changes properly during incoming calls.</string>
     <string name="permission_ringtone_title">Change System Ringtone</string>
     <string name="permission_ringtone_description">Allows the app to set a random song as your system ringtone.</string>
+    <string name="permission_storage_write_title">Media Storage</string>
+    <string name="permission_storage_write_description">Allows the app to save selected audio files as system ringtones on older Android versions.</string>
     <string name="permission_granted">Granted</string>
     <string name="permission_missing">Missing</string>
     <string name="setup_missing_hint">Grant all permissions to continue. You can change your choices anytime in Android Settings.</string>
