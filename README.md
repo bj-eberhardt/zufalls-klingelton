@@ -39,9 +39,7 @@ Die App verwendet ausschließlich die von dir ausgewählten Tracks. Wenn die Fun
 
 ### 📱 Play Store
 
-Die App befindet sich aktuell in Entwicklung und ist noch nicht im Google Play Store veröffentlicht.
-
-Ein Play-Store-Link wird hier ergänzt, sobald die erste öffentliche Version verfügbar ist.
+Die App ist im [Google Play Store](https://play.google.com/store/apps/details?id=de.emailspeicher.zufallsklingelton) verfügbar.
 
 ### 🔗 Mehr erfahren
 
@@ -81,9 +79,7 @@ The app only uses tracks selected by you. When the feature is disabled, Android�
 
 ### 📱 Google Play
 
-The app is currently under development and is not available on Google Play yet.
-
-A Play Store link will be added here when the first public release is available.
+The app is available on [Google Play](https://play.google.com/store/apps/details?id=de.emailspeicher.zufallsklingelton).
 
 ### 🔗 More information
 
