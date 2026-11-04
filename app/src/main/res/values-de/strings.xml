@@ -48,6 +48,7 @@
     <string name="unknown_artist">Unbekannter Interpret</string>
     <string name="preview_error">Vorschau konnte nicht abgespielt werden.</string>
     <string name="import_error">Die ausgewählten Dateien konnten nicht gelesen werden.</string>
+    <string name="import_partial_error">%1$d ausgewählte Datei(en) konnten nicht importiert werden.</string>
     <string name="current_ringtone">Aktueller Klingelton</string>
     <string name="system_default_ringtone">Android-Systemstandard</string>
     <string name="unknown_ringtone">Unbekannter Klingelton</string>

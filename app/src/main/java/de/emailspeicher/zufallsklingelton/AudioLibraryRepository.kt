@@ -2,6 +2,7 @@ package de.emailspeicher.zufallsklingelton
 
 import android.content.Context
 import android.content.ContentValues
+import android.content.ContentUris
 import android.database.Cursor
 import android.media.RingtoneManager
 import android.net.Uri
@@ -11,6 +12,17 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import java.io.File
+
+internal fun audioExtension(title: String, mimeType: String): String {
+    val titleExtension = title.substringAfterLast('.', "")
+        .takeIf { it.matches(Regex("[A-Za-z0-9]{1,5}")) }
+    return titleExtension?.lowercase() ?: when (mimeType.lowercase()) {
+        "audio/mpeg", "audio/mp3" -> "mp3"
+        "audio/wav", "audio/x-wav" -> "wav"
+        "audio/mp4" -> "m4a"
+        else -> mimeType.substringAfter('/', "mp3")
+    }
+}
 
 class AudioLibraryRepository(context: Context) {
     private val appContext = context.applicationContext
@@ -80,6 +92,9 @@ class AudioLibraryRepository(context: Context) {
         Log.d(TAG, "Read metadata: title=$title, durationMs=$duration, authority=${uri.authority}")
         val mediaUri = if (uri.authority == "media") uri else importIntoMediaStore(uri, title)
         Log.d(TAG, "Resolved audio URI: $mediaUri")
+        if (mediaUri == null) {
+            Log.e(TAG, "Audio import failed: sourceUri=$uri, title=$title, mimeType=${resolver.getType(uri)}")
+        }
         mediaUri?.let { TrackRepository.fromMedia(it, title, "", duration, managedByApp = uri.authority != "media") }
     }.onFailure { error ->
         Log.e(TAG, "Unable to import audio track: $uri", error)
@@ -87,14 +102,47 @@ class AudioLibraryRepository(context: Context) {
 
     private fun importIntoMediaStore(sourceUri: Uri, title: String): Uri? = runCatching {
         val mimeType = resolver.getType(sourceUri) ?: "audio/mpeg"
-        val extension = mimeType.substringAfter('/', "mp3")
+        val extension = audioExtension(title, mimeType)
         val safeTitle = title.replace(Regex("[^A-Za-z0-9._-]"), "_")
         val displayName = if (safeTitle.endsWith(".$extension", ignoreCase = true)) {
             safeTitle
         } else {
             "$safeTitle.$extension"
         }
-        Log.d(TAG, "Copying audio to MediaStore: mimeType=$mimeType, displayName=$displayName")
+        Log.d(TAG, "Copying audio to MediaStore: sourceUri=$sourceUri, mimeType=$mimeType, displayName=$displayName")
+        val ringtoneDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES)
+        val relativePath = "Ringtones/Zufalls-Klingelton"
+        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        } else {
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        }
+        val existingUri = resolver.query(
+            collection,
+            arrayOf(MediaStore.Audio.Media._ID),
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                "${MediaStore.Audio.Media.DISPLAY_NAME} = ? AND ${MediaStore.Audio.Media.RELATIVE_PATH} = ?"
+            } else {
+                "${MediaStore.Audio.Media.DATA} = ?"
+            },
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                arrayOf(displayName, relativePath)
+            } else {
+                arrayOf(File(ringtoneDirectory, displayName).absolutePath)
+            },
+            null,
+        )?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                ContentUris.withAppendedId(collection, cursor.getLong(0))
+            } else {
+                null
+            }
+        }
+        if (existingUri != null) {
+            Log.d(TAG, "Reusing existing MediaStore audio: $existingUri")
+            return@runCatching existingUri
+        }
+
         val values = ContentValues().apply {
             put(MediaStore.Audio.Media.DISPLAY_NAME, displayName)
             put(MediaStore.Audio.Media.MIME_TYPE, mimeType)
@@ -102,18 +150,12 @@ class AudioLibraryRepository(context: Context) {
             put(MediaStore.Audio.Media.IS_RINGTONE, 1)
             put(MediaStore.Audio.Media.IS_MUSIC, 1)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                put(MediaStore.Audio.Media.RELATIVE_PATH, "Ringtones/Zufalls-Klingelton")
+                put(MediaStore.Audio.Media.RELATIVE_PATH, relativePath)
                 put(MediaStore.Audio.Media.IS_PENDING, 1)
             } else {
-                val ringtoneDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES)
                 ringtoneDirectory.mkdirs()
                 put(MediaStore.Audio.Media.DATA, File(ringtoneDirectory, displayName).absolutePath)
             }
-        }
-        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        } else {
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         }
         val destinationUri = resolver.insert(collection, values)
             ?: return@runCatching null

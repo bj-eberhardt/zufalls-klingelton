@@ -22,6 +22,53 @@ Die App nutzt Kotlin, Jetpack Compose und Material 3. Das Mindest-SDK ist Androi
 .\gradlew.bat assembleAndroidTest
 ```
 
+## Automatisierte lokale Gerätetest-Matrix
+
+Die Datei `app/build.gradle.kts` definiert zwei lokale Gradle Managed Devices
+(Pixel 2 mit API 35 und 36). Gradle erstellt, startet und entfernt die
+Emulatoren für den jeweiligen Testlauf automatisch. Für die lokale Matrix
+Für die lokale Matrix verwenden wir API 35 und 36, weil ältere Managed-
+Device-Images auf diesem Rechner nicht zuverlässig booten. API 26 und API 32
+können separat auf vorbereiteten lokalen Emulatoren getestet werden.
+
+Für Windows ist in `gradle.properties` das stabile Software-Rendering
+`swiftshader_indirect` aktiviert. Das verhindert, dass der Emulator die auf
+manchen Installationen nicht unterstützte Option `auto-no-window` auswählt.
+API 35 und 36 verwenden `x86_64`, passend zu den
+jeweiligen System-Images. Die Matrix startet die Emulatoren absichtlich
+nacheinander, um Snapshot- und Speicherprobleme durch parallele Emulatorstarts
+auf lokalen Windows-Rechnern zu vermeiden.
+
+Nur Unit-Tests:
+
+```powershell
+.\gradlew.bat testDebugUnitTest
+```
+
+Ein einzelnes Managed Device:
+
+```powershell
+.\gradlew.bat pixel2Api35DebugAndroidTest
+```
+
+Die komplette lokale Matrix läuft über den projektspezifischen Sammel-Task:
+
+```powershell
+.\gradlew.bat :app:localPhoneMatrixTest
+```
+
+Diese Tasks werden nicht von der GitHub-Actions-CI aufgerufen. Die CI führt
+weiterhin nur `testDebugUnitTest` aus; für die Managed Devices ist kein
+Emulator-Setup in der CI erforderlich.
+
+Die Runtime-Berechtigungen können in einem End-to-End-Test über die echten
+Android-Systemdialoge geprüft und per UI-Automation bestätigt werden. Die
+Systemklingelton-Tests benötigen zusätzlich den besonderen
+`WRITE_SETTINGS`-Zugriff. Dieser ist kein normaler Runtime-Dialog und muss auf
+dem dedizierten lokalen Testemulator vor dem Systemtest über `appops` gesetzt
+werden. Dadurch bleiben die fachlichen Tests deterministisch und verändern
+nicht versehentlich ein echtes Gerät.
+
 ## Berechtigungen
 
 Die App benötigt:
@@ -95,6 +142,53 @@ Die Fixture erzeugt den kurzen WAV-Ton deterministisch im Testcode; es ist kein 
 Die Instrumentationstests führen deshalb die echten Receiver-Klassen mit echten Intents und dem produktiven `goAsync()`-Runner-Seam aus. Persistenz, asynchrone Verarbeitung und tatsächliche System-Klingeltonänderung bleiben dabei real. Die Zustellung im Produkt erfolgt weiterhin durch Android über die Manifest-Receiver.
 
 Ein echter Reboot beziehungsweise eine echte Telefonie ist für einen separaten Geräteakzeptanztest erforderlich.
+
+## Echte UI- und Plattformtests
+
+`PermissionAndPickerE2eTest` bedient lokal echte Runtime-Berechtigungsdialoge,
+den `WRITE_SETTINGS`-Bildschirm und DocumentsUI auf API 35 und 36:
+
+```powershell
+.\gradlew.bat :app:localPermissionE2eTest
+```
+
+`localPlatformAcceptanceTest` benötigt genau einen verbundenen Emulator und
+führt echte Emulator-Telefonie sowie einen echten Reboot aus:
+
+```powershell
+.\gradlew.bat :app:localPlatformAcceptanceTest
+```
+
+Der Acceptance-Task bricht bei echten Geräten oder mehreren verbundenen
+Geräten bewusst ab und wird nicht von der CI ausgeführt.
+
+### Manuelle lokale Testausführung
+
+Für die vollständige lokale Prüfung werden diese drei Abläufe verwendet:
+
+1. Schnelle fachliche Instrumentationstests auf API 35 und 36:
+
+   ```powershell
+   .\gradlew.bat :app:localPhoneMatrixTest
+   ```
+
+2. Echte Berechtigungsdialoge, `WRITE_SETTINGS` und DocumentsUI:
+
+   ```powershell
+   .\gradlew.bat :app:localPermissionE2eTest
+   ```
+
+3. Echter Emulator-Reboot und Emulator-Telefonie. Dafür muss genau ein
+   Emulator per `adb devices` verbunden sein:
+
+   ```powershell
+   .\gradlew.bat :app:localPlatformAcceptanceTest
+   ```
+
+Für die maximale Abdeckung alle drei Tasks ausführen. Der zweite Task nutzt
+   ebenfalls die lokalen Managed Devices und kann deshalb bereits vorhandene
+   Matrixtests erneut ausführen; bei einem schnellen reinen Regressionstest
+   genügt der erste Task.
 
 ## Architekturhinweise
 

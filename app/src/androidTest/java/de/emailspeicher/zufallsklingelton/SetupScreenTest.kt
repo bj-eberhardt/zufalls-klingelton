@@ -9,6 +9,7 @@ import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import de.emailspeicher.zufallsklingelton.ui.theme.ZufallsKlingeltonTheme
@@ -52,7 +53,7 @@ class SetupScreenTest {
             }
         }
 
-        composeRule.onNodeWithTag("start_button").assertIsDisplayed()
+        composeRule.onNodeWithTag("start_button").performScrollTo().assertIsDisplayed()
         composeRule.onNodeWithTag("start_button").assertIsEnabled()
         composeRule.onNodeWithTag("request_permissions_button").assertIsNotEnabled()
     }

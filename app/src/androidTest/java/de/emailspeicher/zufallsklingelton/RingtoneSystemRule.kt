@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.RingtoneManager
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.provider.Settings
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.fail
@@ -22,6 +23,7 @@ class RingtoneSystemRule : TestWatcher() {
         clearState()
         originalRingtone = RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_RINGTONE)
         fixture = MediaStoreFixture(context)
+        grantWriteSettingsForInstrumentation()
         checkSettingsAccess()
     }
 
@@ -49,6 +51,16 @@ class RingtoneSystemRule : TestWatcher() {
         val audioPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.READ_MEDIA_AUDIO else Manifest.permission.READ_EXTERNAL_STORAGE
         if (context.checkSelfPermission(audioPermission) != PackageManager.PERMISSION_GRANTED) fail("Audio-Berechtigung fehlt: $audioPermission")
         if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) fail("READ_PHONE_STATE fehlt")
+    }
+
+    /**
+     * WRITE_SETTINGS is a special app-op, not a runtime permission. Gradle
+     * Managed Devices do not grant it during APK installation, so prepare the
+     * dedicated local test emulator through the instrumentation shell before
+     * running tests that change the real system ringtone.
+     */
+    private fun grantWriteSettingsForInstrumentation() {
+        InstrumentationTestSetup.grantSystemPermissions(context)
     }
 
     private fun clearState() {

@@ -43,7 +43,7 @@ class MediaStoreFixture(private val context: Context) {
     }
 }
 
-private object WavFixture {
+internal object WavFixture {
     fun bytes(sampleRate: Int = 8_000, durationMs: Int = 250): ByteArray {
         val sampleCount = sampleRate * durationMs / 1_000
         val dataSize = sampleCount * 2

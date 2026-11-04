@@ -63,6 +63,68 @@ android {
     buildFeatures {
         compose = true
     }
+
+    testOptions {
+        managedDevices {
+            localDevices {
+                create("pixel2Api35") {
+                    device = "Pixel 2"
+                    apiLevel = 35
+                    systemImageSource = "aosp"
+                    testedAbi = "x86_64"
+                }
+                create("pixel2Api36") {
+                    device = "Pixel 2"
+                    apiLevel = 36
+                    systemImageSource = "aosp"
+                    testedAbi = "x86_64"
+                }
+            }
+
+        }
+    }
+}
+
+tasks.register<Exec>("localPhoneMatrixTest") {
+    group = "verification"
+    description = "Runs Android instrumentation tests on all local managed phone devices."
+    commandLine(
+        "cmd.exe",
+        "/c",
+        rootProject.file("gradlew.bat").absolutePath,
+        ":app:pixel2Api35DebugAndroidTest",
+        ":app:pixel2Api36DebugAndroidTest",
+        "-Pandroid.testInstrumentationRunnerArguments.notClass=de.emailspeicher.zufallsklingelton.PermissionAndPickerE2eTest,de.emailspeicher.zufallsklingelton.PlatformAcceptanceTest",
+    )
+}
+
+tasks.register("localPermissionE2eTest") {
+    group = "verification"
+    description = "Runs real permission, Settings, and DocumentsUI E2E tests on local managed devices."
+    dependsOn("pixel2Api35DebugAndroidTest", "pixel2Api36DebugAndroidTest")
+}
+
+tasks.register<Exec>("localPlatformAcceptanceTest") {
+    group = "verification"
+    description = "Runs real emulator phone-call and reboot acceptance tests on one connected emulator."
+    dependsOn("installDebug", "installDebugAndroidTest")
+    commandLine(
+        "powershell.exe",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        rootProject.file("tools/run-platform-acceptance.ps1").absolutePath,
+    )
+}
+
+// Starting several emulators concurrently is unreliable on local Windows hosts.
+// mustRunAfter only applies when the complete matrix task requests all devices;
+// an individual device task remains independent.
+tasks.configureEach {
+    when (name) {
+        "pixel2Api36DebugAndroidTest" -> mustRunAfter("pixel2Api35DebugAndroidTest")
+    }
 }
 
 dependencies {
@@ -82,6 +144,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.core.ktx)
+    androidTestImplementation(libs.androidx.test.uiautomator)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 

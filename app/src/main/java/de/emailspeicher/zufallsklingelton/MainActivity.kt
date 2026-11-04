@@ -243,8 +243,18 @@ class MainActivity : ComponentActivity() {
     private fun addUris(uris: List<Uri>) {
         Log.i("MainActivity", "Adding ${uris.size} selected URI(s) to the track pool")
         lifecycleScope.launch {
-            val imported = withContext(Dispatchers.IO) { uris.mapNotNull(audioLibraryRepository::readTrack) }
+            val imported = withContext(Dispatchers.IO) {
+                uris.mapNotNull { uri ->
+                    audioLibraryRepository.readTrack(uri) ?: run {
+                        Log.e("MainActivity", "Selected URI could not be imported: $uri")
+                        null
+                    }
+                }
+            }
             Log.i("MainActivity", "Imported ${imported.size}/${uris.size} selected URI(s)")
+            if (imported.size < uris.size) {
+                Toast.makeText(this@MainActivity, getString(R.string.import_partial_error, uris.size - imported.size), Toast.LENGTH_LONG).show()
+            }
             if (imported.isEmpty()) {
                 Log.e("MainActivity", "No selected URI could be imported")
                 selectionError = getString(R.string.import_error)

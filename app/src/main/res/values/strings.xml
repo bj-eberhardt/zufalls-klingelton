@@ -51,6 +51,7 @@
     <string name="preview_stop">Stop preview</string>
     <string name="delete_track">Remove track</string>
     <string name="import_error">Could not read selected files.</string>
+    <string name="import_partial_error">Could not import %1$d selected file(s).</string>
     <string name="current_ringtone">Current Ringtone</string>
     <string name="system_default_ringtone">Android System Default</string>
     <string name="unknown_ringtone">Unknown Ringtone</string>

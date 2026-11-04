@@ -19,6 +19,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -38,7 +39,7 @@ fun SourceSheet(onDismiss: () -> Unit, onLibrary: () -> Unit, onStorage: () -> U
             Text(stringResource(R.string.add_source_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Text(stringResource(R.string.add_source_help), color = MaterialTheme.colorScheme.onSurfaceVariant)
             Button(onClick = onLibrary, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.add_from_library)) }
-            OutlinedButton(onClick = onStorage, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.add_from_storage)) }
+            OutlinedButton(onClick = onStorage, modifier = Modifier.fillMaxWidth().testTag("add_from_storage_button")) { Text(stringResource(R.string.add_from_storage)) }
             Spacer(modifier = Modifier.padding(bottom = 12.dp))
         }
     }
